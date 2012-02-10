@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html><head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Photography Locator</title>
+    <meta charset="utf-8">
+    
+    <link rel="stylesheet" href="dist/leaflet.css">
+    <link rel="stylesheet" href="photoLocate.css">
+    <!--[if lte IE 8]><link rel="stylesheet" href="../dist/leaflet.ie.css" /><![endif]-->
+  </head>
+  <body>
+   
+    
+    Image url:
+    <input type="text" name="url" id="url" size="50" />
+    <input type="button" value="Submit" onclick="loadImage()"/>
+    <br/>
+    
+    <div id="map" style="height: 500px;width: 50%"> </div>
+    <div id="image"  style="height: 500px;width: 50%"> </div>
+    
+    
+    <br/>
+    <input type="button" value="Go!" />
+    <script src="dist/leaflet.js"></script>
+    <script src="photoLocate.js"></script>
+  </body>
+</html>
