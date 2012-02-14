@@ -87,8 +87,24 @@ function resetElevation (e) {
 }
 
 function setMapPopup(marker){
-    var popupStr= '(' + marker.getLatLng().lat.toFixed(3) + ', ' + marker.getLatLng().lng.toFixed(3) + '):'+marker.elevation+'m asl' + '<br/><input type="button" value="Delete" onclick="delMapMarker('+ marker.id +')"/></p>';
+    var popupStr= '(' + marker.getLatLng().lat.toFixed(3) + ', ' + marker.getLatLng().lng.toFixed(3) + '):'+marker.elevation+'m asl' + '<br/><input type="button" value="Delete" onclick="delMapMarker('+ marker.id +')"/></p><br/>'+getImageMarks( marker.id);
     return popupStr;
+}
+
+function getImageMarks(ii){
+    var retStr = 'Link with:<br/><select id="Map_'+ii+'">';
+    for(i=0;i<imageMarkers.length;i++){
+	if (imageMarkers[i].isLinked==false){
+	    retStr+='<option value="'+i+'">'+i+'</option>';
+	}
+    }
+    retStr+='<select><input type="button" value="select" onClick="plop('+ii+')"></>';
+    return retStr;
+}
+
+function plop(ii){
+    var o = document.getElementById('Map_'+ii).value;
+    alert("vala!!"+ii+o);
 }
 
 function loadImage() {
