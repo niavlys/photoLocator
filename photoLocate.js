@@ -9,16 +9,25 @@ image.on('click', onImageClick);
 
 function delImageMarker(i){
     image.removeLayer(imageMarkers[i]);
+    if (imageMarkers[i].isLinked != null){
+	mapMarker[imageMarkers[i].isLinked]=null;
+    }
+    imageMarkers[i]=null;
 }
 
 function delMapMarker(i){
     map.removeLayer(mapMarkers[i]);
+    if (mapMarkers[i].isLinked != null){
+	imageMarker[mapMarkers[i].isLinked]=null;
+    }
+    mapMarkers[i]=null;
+
 }
 
 function onImageClick(e) {
     var latlngStr = '(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + ')';
     var marker = new L.Marker(e.latlng,{draggable:true});
-    marker.isLinked=false;
+    marker.isLinked=null;
     //alert(latlngStr);
     image.addLayer(marker);
     imageMarkers[nbI]=marker;
@@ -34,8 +43,23 @@ var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D7597
 cloudmadeAttribution = 'plop Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
 cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
 
-map.setView(new L.LatLng(45.8789 , 6.887), 13).addLayer(cloudmade);
+
+var nexrad = new L.TileLayer.WMS("http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
+    layers: 'nexrad-n0r-900913',
+    format: 'image/png',
+    transparent: true,
+    attribution: "Weather data © 2012 IEM Nexrad"
+});
+
+
+
+//map.setView(new L.LatLng(45.8789 , 6.887), 13).addLayer(cloudmade);
+map.addLayer(nexrad);
 map.on('click', onMapClick);
+
+
+
+
 
 function getElevation(e){
     var elevationUrl = "http://api.geonames.org/srtm3JSON?lat="+e.lat.toFixed(3)+"&lng="+e.lng.toFixed(3)+"&username=niavlys";
@@ -70,12 +94,23 @@ function onMapClick(e) {
     marker.elevation=elevation;
     mapMarkers[nbP]=marker;
     marker.id=nbP;
+    marker.isLinked=null;
+    
     nbP=nbP+1;
     var latlngStr = setMapPopup(marker);//'(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + '):'+marker.elevation+'m asl';
     marker.bindPopup(latlngStr);
     map.addLayer(marker);
-    
+    marker.on('click', resetPopup);
     marker.on('dragend', resetElevation);
+}
+
+
+function resetPopup (e) {    
+    var latlngStr = setMapPopup(e.target);
+    e.target.bindPopup(latlngStr);
+    e.target.openpopup()
+    //e.target.bindPopup(latlngStr);
+    //alert("azzaza "+e.type);
 }
 
 
@@ -94,16 +129,21 @@ function setMapPopup(marker){
 function getImageMarks(ii){
     var retStr = 'Link with:<br/><select id="Map_'+ii+'">';
     for(i=0;i<imageMarkers.length;i++){
-	if (imageMarkers[i].isLinked==false){
+	if (imageMarkers[i] != null && imageMarkers[i].isLinked==null){
 	    retStr+='<option value="'+i+'">'+i+'</option>';
 	}
+	else if (imageMarkers[i] != null && imageMarkers[i].isLinked==ii){
+	    retStr+='<option selected value="'+i+'">'+i+'</option>';
+	}
     }
-    retStr+='<select><input type="button" value="select" onClick="plop('+ii+')"></>';
+    retStr+='<select><input type="button" value="select" onClick="linkMarker('+ii+')"></>';
     return retStr;
 }
 
-function plop(ii){
+function linkMarker(ii){
     var o = document.getElementById('Map_'+ii).value;
+    imageMarkers[o].isLinked=ii;
+    mapMarkers[ii].isLinked=o;
     alert("vala!!"+ii+o);
 }
 
