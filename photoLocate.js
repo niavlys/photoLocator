@@ -4,22 +4,22 @@ var imageMarkers = new Array();
 var nbI=0;
 
 var image = new L.Map('image');
-
+image.attributionControl.setPrefix('');
 image.on('click', onImageClick);
 
 function delImageMarker(i){
-    image.removeLayer(imageMarkers[i]);
     if (imageMarkers[i].isLinked != null){
 	mapMarker[imageMarkers[i].isLinked]=null;
     }
+    image.removeLayer(imageMarkers[i]);
     imageMarkers[i]=null;
 }
 
 function delMapMarker(i){
-    map.removeLayer(mapMarkers[i]);
     if (mapMarkers[i].isLinked != null){
 	imageMarker[mapMarkers[i].isLinked]=null;
-    }
+    } 
+    map.removeLayer(mapMarkers[i]);
     mapMarkers[i]=null;
 
 }
@@ -32,37 +32,47 @@ function onImageClick(e) {
     image.addLayer(marker);
     imageMarkers[nbI]=marker;
     var popupMsg = '<p>Point number '+nbI + '<br/><input type="button" value="Delete" onclick="delImageMarker('+ nbI+')"/></p>';
-
+    displayMessage(latlngStr);
     marker.bindPopup(popupMsg);
     nbI=nbI+1;
 }
 
-
-var map = new L.Map('map');      
-var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',
-cloudmadeAttribution = 'plop Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+var map = new L.Map('map');
+map.attributionControl.setPrefix('');     
+var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/'+cloudMadeKey+'/997/256/{z}/{x}/{y}.png',
+cloudmadeAttribution = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
 cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
 
+var osmUrl = 'http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
+osmAttribution = '&copy; 2011 OpenStreetMap',
+osm = new L.TileLayer(osmUrl, {maxZoom: 18, attribution: osmAttribution});
 
-var nexrad = new L.TileLayer.WMS("http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
-    layers: 'nexrad-n0r-900913',
-    format: 'image/png',
-    transparent: true,
-    attribution: "Weather data © 2012 IEM Nexrad"
-});
+var bingMap =  new L.TileLayer.Bing(bingKey,'Aerial');
+var bingRoad =  new L.TileLayer.Bing(bingKey,'Road');
 
+var baseMaps = {
+    "OSM": osm,
+    "Cloudmade": cloudmade,
+    "Bing aerial":bingMap,
+    "Bing road":bingRoad,
+    
 
+};
 
-//map.setView(new L.LatLng(45.8789 , 6.887), 13).addLayer(cloudmade);
-map.addLayer(nexrad);
+map.addLayer(cloudmade);
+map.addLayer(osm);
+map.addLayer(bingMap);
+map.addLayer(bingRoad);
+map.setView(new L.LatLng(45.925, 6.873), 13);
+
+var layersControl = new L.Control.Layers(baseMaps);
+map.addControl(layersControl);
+
 map.on('click', onMapClick);
 
 
-
-
-
 function getElevation(e){
-    var elevationUrl = "http://api.geonames.org/srtm3JSON?lat="+e.lat.toFixed(3)+"&lng="+e.lng.toFixed(3)+"&username=niavlys";
+    var elevationUrl = "http://api.geonames.org/srtm3JSON?lat="+e.lat.toFixed(3)+"&lng="+e.lng.toFixed(3)+"&username="+geonameUser;
     var xhr_object = null;
     var elevation = 0;
     if(window.XMLHttpRequest) // Firefox
@@ -149,12 +159,23 @@ function linkMarker(ii){
 
 function loadImage() {
     var url = document.getElementById('url').value;
+    var img = new Image();
+    img.src = url;
+    var width = parseFloat(img.width);
+    var height = parseFloat(img.height);
+    var ratio = width/height;
     var imageBounds = new L.LatLngBounds(
-	new L.LatLng(-50.0,-50.0),
-	new L.LatLng(50.0,50.0));
+	new L.LatLng(0.0,0.0),
+	new L.LatLng(10.0,10*ratio));
     var imageL = new L.ImageOverlay(url, imageBounds);  
-    image.setView(new L.LatLng(0.0, 0.0), 1).addLayer(imageL);
-    var imageAttribution = "&copy;"+url+", all rights reserved."
+    image.setView(new L.LatLng(5.0, 5.0*ratio), 6).addLayer(imageL);
+    var imageAttribution = "&copy; "+url+", all rights reserved."
     image.attributionControl.addAttribution(imageAttribution);
-    //alert("voila!"+url);
+}
+
+
+function displayMessage(text) {
+    // display the message in the message div
+    var message = document.getElementById('message');
+    message.innerHTML=text;
 }
