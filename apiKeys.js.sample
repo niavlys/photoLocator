@@ -1,3 +1,3 @@
-var geonameUser = "niavlys";
-var bingKey="AluF5FUSu38c3Z41QyqW1Ee7RKQLbs9ogl23qVlo6uG4j4ZNiUakddwdS6cMEG_D";
-var cloudMadeKey="BC9A493B41014CAABB98F0471D759707";
+var geonameUser = "YOUR_USERNAME";
+var bingKey="YOUR_BINGKEY";
+var cloudMadeKey="YOUR_CLOUDMADEKEY";
