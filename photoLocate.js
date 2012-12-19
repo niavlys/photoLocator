@@ -2,6 +2,17 @@ var mapMarkers = new Array();
 var nbP=0;
 var imageMarkers = new Array();
 var nbI=0;
+var nbL=0;
+var doneIcon = L.icon({
+    iconUrl: 'dist/images/marker-icon-red.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 42],
+    shadowUrl: 'dist/images/marker-shadow.png',
+    shadowSize: [41, 41],
+    
+});
+
+
 
 var image = new L.Map('image');
 image.attributionControl.setPrefix('');
@@ -18,7 +29,8 @@ function delImageMarker(i){
 function delMapMarker(i){
     if (mapMarkers[i].isLinked != null){
 	imageMarker[mapMarkers[i].isLinked]=null;
-    } 
+    }
+    mapMarkers[i].closePopup();
     map.removeLayer(mapMarkers[i]);
     mapMarkers[i]=null;
 
@@ -110,7 +122,7 @@ function onMapClick(e) {
     var latlngStr = setMapPopup(marker);//'(' + e.latlng.lat.toFixed(3) + ', ' + e.latlng.lng.toFixed(3) + '):'+marker.elevation+'m asl';
     marker.bindPopup(latlngStr);
     map.addLayer(marker);
-    marker.on('click', resetPopup);
+    //marker.on('click', resetPopup);
     marker.on('dragend', resetElevation);
 }
 
@@ -154,7 +166,18 @@ function linkMarker(ii){
     var o = document.getElementById('Map_'+ii).value;
     imageMarkers[o].isLinked=ii;
     mapMarkers[ii].isLinked=o;
-    alert("vala!!"+ii+o);
+    mapMarkers[ii].setIcon(doneIcon);
+    imageMarkers[o].setIcon(doneIcon);
+    //mapMarkers[ii]._popup.setContent('ploppp');
+    //imageMarkers[o]._popup.setContent('ploppp');
+    //alert("vala!!"+ii+o);
+    nbL=nbL+1;
+    if (nbL>=2){
+	document.getElementById('launchButton').disabled=false;
+    }
+    else{
+	document.getElementById('launchButton').disabled=true;
+    }
 }
 
 function loadImage() {
@@ -179,3 +202,9 @@ function displayMessage(text) {
     var message = document.getElementById('message');
     message.innerHTML=text;
 }
+
+
+function startCompute() {
+   displayMessage("lets go");
+}
+
