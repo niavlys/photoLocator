@@ -4,10 +4,10 @@ var imageMarkers = new Array();
 var nbI=0;
 var nbL=0;
 var doneIcon = L.icon({
-    iconUrl: 'dist/images/marker-icon-red.png',
+    iconUrl: 'static/dist/images/marker-icon-red.png',
     iconSize: [25, 41],
     iconAnchor: [12, 42],
-    shadowUrl: 'dist/images/marker-shadow.png',
+    shadowUrl: 'static/dist/images/marker-shadow.png',
     shadowSize: [41, 41],
     
 });
@@ -62,21 +62,30 @@ osm = new L.TileLayer(osmUrl, {maxZoom: 18, attribution: osmAttribution});
 var bingMap =  new L.TileLayer.Bing(bingKey,'Aerial');
 var bingRoad =  new L.TileLayer.Bing(bingKey,'Road');
 
+var opentopoUrl = 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+opentopoAttribution = 'OpenTopoMap &copy;(CC-BY-SA)',
+opentopo = new L.TileLayer(opentopoUrl, {maxZoom: 18, attribution: opentopoAttribution});
+
+
+var scanWmtsUrl	= "http://gpp3-wxs.ign.fr/"+IGNKEY + "/wmts?LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS.SCAN-EXPRESS.STANDARD&EXCEPTIONS=text/xml&FORMAT=image/jpeg&SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&STYLE=normal&TILEMATRIXSET=PM&&TILEMATRIX={z}&TILECOL={x}&TILEROW={y}" ;
+SCAN25 = new L.TileLayer(scanWmtsUrl, {attribution: '&copy; <a href="http://www.ign.fr/">IGN</a>'});
+ 
+
 var baseMaps = {
     "OSM": osm,
-    "Cloudmade": cloudmade,
-    "Bing aerial":bingMap,
-    "Bing road":bingRoad,
-    
-
+    //"Cloudmade": cloudmade,
+    //"Bing aerial":bingMap,
+    //"Bing road":bingRoad,
+    "Ign Topo Express":SCAN25,
+    "openTopo": opentopo,
 };
 
-map.addLayer(cloudmade);
+//map.addLayer(cloudmade);
 map.addLayer(osm);
-map.addLayer(bingMap);
-map.addLayer(bingRoad);
-map.setView(new L.LatLng(45.925, 6.873), 13);
-
+//map.addLayer(bingMap);
+//map.addLayer(bingRoad);
+map.addLayer(SCAN25);
+map.setView(new L.LatLng(45.832, 6.864), 13);
 var layersControl = new L.Control.Layers(baseMaps);
 map.addControl(layersControl);
 
