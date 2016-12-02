@@ -11,6 +11,7 @@ var doneIcon = L.icon({
     shadowSize: [41, 41],
     
 });
+var ratio = 0;
 
 
 
@@ -20,7 +21,7 @@ image.on('click', onImageClick);
 
 function delImageMarker(i){
     if (imageMarkers[i].isLinked != null){
-	mapMarker[imageMarkers[i].isLinked]=null;
+	mapMarkers[imageMarkers[i].isLinked]=null;
     }
     image.removeLayer(imageMarkers[i]);
     imageMarkers[i]=null;
@@ -72,7 +73,7 @@ SCAN25 = new L.TileLayer(scanWmtsUrl, {attribution: '&copy; <a href="http://www.
  
 
 var baseMaps = {
-    "OSM": osm,
+    //"OSM": osm,
     //"Cloudmade": cloudmade,
     //"Bing aerial":bingMap,
     //"Bing road":bingRoad,
@@ -81,10 +82,12 @@ var baseMaps = {
 };
 
 //map.addLayer(cloudmade);
-map.addLayer(osm);
+//map.addLayer(osm);
 //map.addLayer(bingMap);
 //map.addLayer(bingRoad);
 map.addLayer(SCAN25);
+map.addLayer(opentopo);
+
 map.setView(new L.LatLng(45.832, 6.864), 13);
 var layersControl = new L.Control.Layers(baseMaps);
 map.addControl(layersControl);
@@ -177,9 +180,6 @@ function linkMarker(ii){
     mapMarkers[ii].isLinked=o;
     mapMarkers[ii].setIcon(doneIcon);
     imageMarkers[o].setIcon(doneIcon);
-    //mapMarkers[ii]._popup.setContent('ploppp');
-    //imageMarkers[o]._popup.setContent('ploppp');
-    //alert("vala!!"+ii+o);
     nbL=nbL+1;
     if (nbL>=2){
 	document.getElementById('launchButton').disabled=false;
@@ -195,7 +195,7 @@ function loadImage() {
     img.src = url;
     var width = parseFloat(img.width);
     var height = parseFloat(img.height);
-    var ratio = width/height;
+    ratio = width/height;
     var imageBounds = new L.LatLngBounds(
 	new L.LatLng(0.0,0.0),
 	new L.LatLng(10.0,10*ratio));
@@ -214,6 +214,33 @@ function displayMessage(text) {
 
 
 function startCompute() {
-   displayMessage("lets go");
+
+    //prepare data as vector u,v,x,y,z
+    //u,v centered coordinates
+    var retStr = "";
+    var e = null;
+    for(i=0;i<imageMarkers.length;i++){
+	if (imageMarkers[i].isLinked != null){
+	    var lon_to_U = imageMarkers[i].getLatLng().lng.toFixed(3) -(5.0*ratio);
+	    var lat_to_V = imageMarkers[i].getLatLng().lat.toFixed(3) - 5.0;
+	    retStr += ' ' + lon_to_U + 
+		' , ' + lat_to_V + 
+		' , ' + mapMarkers[imageMarkers[i].isLinked].getLatLng().lng.toFixed(3) + 
+		' , ' +  mapMarkers[imageMarkers[i].isLinked].getLatLng().lat.toFixed(3) +
+		' , ' +  mapMarkers[imageMarkers[i].isLinked].elevation +
+		' ; ' ;
+	}
+    }
+    var url ="compute";
+
+    var r = new XMLHttpRequest();
+    r.open("GET", url, true); 
+    r.onreadystatechange = function () { 
+	if (r.readyState != 4 || r.status != 200) return;
+	alert("Success: " + r.responseText); };
+    r.send("data="+retStr);
+    
+    displayMessage("lets go"+retStr);
+
 }
 
